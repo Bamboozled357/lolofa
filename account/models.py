@@ -2,6 +2,7 @@ from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.db import models
 
 
+
 class UserManager(BaseUserManager):
     def _create(self, email, password, name, **extra_fields):
         if not email:
