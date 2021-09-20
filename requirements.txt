@@ -1,5 +1,7 @@
-Django
-djangorestframework
+Django~=3.2.7
+djangorestframework~=3.12.4
 psycopg2-binary
 Pillow
 django-rest-swagger
+python-decouple==3.4
+django-rest-knox
