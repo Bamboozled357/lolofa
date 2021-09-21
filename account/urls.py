@@ -17,7 +17,7 @@ urlpatterns = [
     path('api/password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset')),
 
 
-    path("",views.ListProductAPIView.as_view(),name="product_list"),
+    # path("",views.ListProductAPIView.as_view(),name="product_list"),
     path("product/create/", views.CreateProductAPIView.as_view(),name="product_create"),
     path("product/update/<int:pk>/",views.UpdateAPIView.as_view(),name="update_product"),
     path("product/delete/<int:pk>/",views.DeleteProductAPIView.as_view(),name="delete_product"),
