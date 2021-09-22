@@ -19,10 +19,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         return rep
 
 
-class ResponseSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Response
-        fields = '__all__'
+
 
 class ResponseSerializer(serializers.ModelSerializer):
     response = serializers.PrimaryKeyRelatedField(write_only=True,
@@ -31,7 +28,7 @@ class ResponseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Response
-        fields = ('id', 'text', 'user')
+        fields = ('id', 'text', 'user','response')
 
     def create(self, validated_data):
         request = self.context.get('request')

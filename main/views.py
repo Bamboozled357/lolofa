@@ -24,17 +24,17 @@ class ProductDetailView(RetrieveAPIView):
 
 
 class ListProductAPIView(ListAPIView):
-    """This endpoint list all of the available todos from the database"""
+    """This endpoint list all of the available products from the database"""
     queryset = Product.objects.all()
     serializer_class = ProductListSerializer
 
 class CreateProductAPIView(CreateAPIView):
-    """This endpoint allows for creation of a todo"""
+    """This endpoint allows for creation of a product"""
     queryset = Product.objects.all()
     serializer_class = ProductListSerializer
 
 class UpdateProductAPIView(UpdateAPIView):
-    """This endpoint allows for updating a specific todo by passing in the id of the todo to update"""
+    """This endpoint allows for updating a specific product by passing in the id of the product to update"""
     queryset = Product.objects.all()
     serializer_class = ProductListSerializer
 
@@ -75,3 +75,5 @@ class ResponseViewSet(mixins.CreateModelMixin,
         if self.action == 'create':
             return [IsAuthenticated()]
         return [IsAuthor()]
+
+
