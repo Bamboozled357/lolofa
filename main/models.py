@@ -38,7 +38,7 @@ class Product(models.Model):
         verbose_name = 'Продукт'
         verbose_name_plural = 'Продукты'
 
-    def str(self):
+    def __str__(self):
         return self.title
 
 
@@ -56,5 +56,6 @@ class Response(models.Model):
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
 
-    def str(self):
+    def __str__(self):
         return f'{self.product} --> {self.user}'
+

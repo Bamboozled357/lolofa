@@ -1,7 +1,11 @@
 from main import views
+
+from .views import (RegisterAPI, LoginAPI, ChangePasswordView)
+
 from .views import RegisterAPI, LoginAPI
+
 from knox import views as knox_views
-from django.urls import path
+from django.urls import path, include
 
 urlpatterns = [
     path('api/register/', RegisterAPI.as_view(), name='register'),
@@ -16,6 +20,9 @@ urlpatterns = [
     path("response/create/", views.CreateResponseAPIView.as_view(),name="response_create"),
     path("response/update/<int:pk>/",views.UpdateAPIView.as_view(),name="update_response"),
     path("response/delete/<int:pk>/",views.DeleteResponseAPIView.as_view(),name="delete_response"),
+    path('api/change-password/', ChangePasswordView.as_view(), name='change-password'),
+    path('api/password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset')),
 
 ]
+
 

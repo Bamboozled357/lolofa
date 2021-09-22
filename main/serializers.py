@@ -6,7 +6,7 @@ class ProductListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = '__all__'
-        # exclude = ('id','creation_date')
+
 
 class ProductDetailSerializer(serializers.ModelSerializer):
     class Meta:

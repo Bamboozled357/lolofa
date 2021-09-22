@@ -75,5 +75,3 @@ class ResponseViewSet(mixins.CreateModelMixin,
         if self.action == 'create':
             return [IsAuthenticated()]
         return [IsAuthor()]
-
-
