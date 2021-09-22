@@ -1,9 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 
-
 User = get_user_model()
-
 
 STATUS_CHOICES = (
     ('open', 'открытое'),
@@ -33,4 +31,5 @@ class Comment(models.Model):
     class Meta:
         verbose_name = 'коментарии'
         verbose_name_plural = 'коментарии'
+
 

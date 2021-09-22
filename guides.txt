@@ -1,3 +1,5 @@
 1. Add Swagger API Documentation to Django REST API | Open API | REST Framework | Python
 documentation source: https://drf-yasg.readthedocs.io/en/stable/readme.html
 
+2. Django REST Framework | User Register Login Logout API
+documentation source: https://studygyaan.com/django/django-rest-framework-tutorial-register-login-logout
