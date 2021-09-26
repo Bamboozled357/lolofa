@@ -42,7 +42,7 @@ urlpatterns = [
     path('', include('account.urls')),
     path('product/', include('main.urls')),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-    path('api-auth/', include('rest_framework.urls')),
+    # path('api-auth/', include('rest_framework.urls')),
 
     path("rate/", views.UserProductRelationView.as_view({'get':'user'})),
     path("cart/", views.CartAPIView.as_view()),

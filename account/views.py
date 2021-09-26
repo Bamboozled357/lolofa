@@ -3,6 +3,7 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny
 
 from .serializers import (RegistrationSerializer,
                           ActivationSerializer, LoginSerializer,
@@ -14,7 +15,10 @@ from knox.views import LoginView as KnoxLoginView, LoginView
 
 
 class RegistrationView(APIView):
+    permission_classes = [AllowAny, ]
+
     def post(self, request):
+        print('xnj nj')
         serializer = RegistrationSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -24,6 +28,8 @@ class RegistrationView(APIView):
 
 
 class ActivationView(APIView):
+    permission_classes = [AllowAny, ]
+
     def post(self, request):
         serializer = ActivationSerializer(data=request.data)
         if serializer.is_valid():
@@ -33,11 +39,12 @@ class ActivationView(APIView):
 
 
 class LoginView(ObtainAuthToken):
+    permission_classes = [AllowAny, ]
     serializer_class = LoginSerializer
 
 
-class LoginAPI(LoginView):
-    permission_classes = (permissions.AllowAny,)
+# class LoginAPI(LoginView):
+#     permission_classes = (permissions.AllowAny,)
 
 
 class LogoutView(APIView):
@@ -62,6 +69,8 @@ class ChangePasswordView(APIView):
 
 
 class ForgotPasswordView(APIView):
+    permission_classes = [AllowAny, ]
+
     def post(self, request):
         serializer = ForgotPasswordSerializer(data=request.data)
         if serializer.is_valid():
@@ -71,6 +80,8 @@ class ForgotPasswordView(APIView):
 
 
 class ForgotPasswordCompleteView(APIView):
+    permission_classes = [AllowAny, ]
+
     def post(self, request):
         serializer = ForgotPasswordCompleteSerializer(data=request.data)
         if serializer.is_valid():

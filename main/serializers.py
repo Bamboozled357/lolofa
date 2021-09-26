@@ -10,7 +10,7 @@ class ListProductSerializer(serializers.ModelSerializer):  #ok
         fields = '__all__'
 
 
-class ProductListSerializer(serializers.ModelSerializer):  #ok
+class ProductSerializer(serializers.ModelSerializer):  #ok
     class Meta:
         model = Product
         exclude = ('user', )
@@ -18,12 +18,8 @@ class ProductListSerializer(serializers.ModelSerializer):  #ok
     def create(self, validated_data):
         request = self.context.get('request')
         validated_data['user'] = request.user
+        print(validated_data['user'])
         return super().create(validated_data)
-
-    def update(self, validated_data, instance):
-        request = self.context.get('request')
-        validated_data['user'] = request.user
-        return super().update(validated_data)
 
 
 class DetailProductSerializer(serializers.ModelSerializer):  #ok
@@ -80,15 +76,21 @@ class UserProductRelationSerializer(serializers.ModelSerializer):
 class CartSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cart
-        fields = '__all__'
+        exclude = ('user', )
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         representation['user'] = instance.user.email
         return representation
 
+    def create(self, validated_data):
+        request = self.context.get('request')
+        validated_data['user'] = request.user
+        print(validated_data['user'])
+        return super().create(validated_data)
 
-class ProductlikeSerializer(serializers.ModelSerializer):
+
+class ProductLikeSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductLikes
         fields = '__all__'

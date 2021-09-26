@@ -10,25 +10,22 @@ from rest_framework.generics import CreateAPIView
 from rest_framework.generics import DestroyAPIView
 from rest_framework.generics import UpdateAPIView
 from rest_framework.mixins import UpdateModelMixin
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.viewsets import GenericViewSet
-from main.models import (Product, Response)
-from main.permissions import IsAuthor, IsAuthorOrIsAdmin
-from main.serializers import (ListProductSerializer, DetailProductSerializer, ProductListSerializer,
-                              ResponseSerializer, )
+from main.models import (Product, Response, Cart)
+from main.serializers import (ListProductSerializer, DetailProductSerializer, ProductSerializer,
+                              ResponseSerializer, ProductLikeSerializer, CartSerializer, )
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from rest_framework.filters import SearchFilter, OrderingFilter
 from main.models import Product, Response, UserProductRelation
 from main.pagination import CustomPagination
-from main.permissions import IsAuthor, IsOwnerOrStaffOrReadOnly
-from main.serializers import (DetailProductSerializer, ProductListSerializer,
-                              ResponseSerializer, CartSerializer, ProductlikeSerializer)
+from main.permissions import (IsAuthor, IsOwnerOrStaffOrReadOnly, IsAuthorOrIsAdmin)
 
 
 class ProductListView(generics.ListAPIView):
     queryset = Product.objects.all()
-    serializer_class = ProductListSerializer
+    serializer_class = ProductSerializer
     filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
 
 
@@ -40,18 +37,21 @@ class CustomSearchFilter(filters.SearchFilter):
 
 
 class ListProductAPIView(ListAPIView):
+    permission_classes = [AllowAny, ]
+
     queryset = Product.objects.all()
     serializer_class = ListProductSerializer
 
 
-class ProductListView(generics.ListAPIView):
-    queryset = Product.objects.all()
-    serializer_class = ProductListSerializer
-    filter_backends = [filters.OrderingFilter]
-    ordering_fields = '__all__'
+# class ProductListView(generics.ListAPIView):
+#     queryset = Product.objects.all()
+#     serializer_class = ProductListSerializer
+#     filter_backends = [filters.OrderingFilter]
+#     ordering_fields = '__all__'
 
 
 class FilterProductAPIView(ListAPIView):
+    permission_classes = [AllowAny, ]
     queryset = Product.objects.all()
     serializer_class = ListProductSerializer
 
@@ -68,24 +68,25 @@ class FilterProductAPIView(ListAPIView):
 class CreateProductAPIView(CreateAPIView):
 
     queryset = Product.objects.all()
-    serializer_class = ProductListSerializer
+    serializer_class = ProductSerializer
     permission_classes = [IsAuthorOrIsAdmin, ]
 
 
 class DetailProductAPIView(RetrieveAPIView):
+    permission_classes = [AllowAny, ]
     queryset = Product.objects.all()
     serializer_class = DetailProductSerializer
 
 
 class UpdateProductAPIView(UpdateAPIView):
     queryset = Product.objects.all()
-    serializer_class = ProductListSerializer
+    serializer_class = ProductSerializer
     permission_classes = [IsAuthorOrIsAdmin, ]
 
 
 class DeleteProductAPIView(DestroyAPIView):
     queryset = Product.objects.all()
-    serializer_class = ProductListSerializer
+    serializer_class = ProductSerializer
     permission_classes = [IsAuthorOrIsAdmin, ]
 
 
@@ -129,7 +130,7 @@ class UserProductRelationView(UpdateModelMixin, GenericViewSet):
 
 class ProductViewSet(ModelViewSet):
     queryset = Product.objects.all()
-    serializers_class = ProductListSerializer
+    serializers_class = ProductSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     permission_classes = [IsOwnerOrStaffOrReadOnly]
     filter_fields = ['price']
@@ -165,19 +166,38 @@ class CartAPIView(generics.ListAPIView):
     serializer_class = CartSerializer
 
 
+class CreateCartAPIView(CreateAPIView):
+
+    queryset = Cart.objects.all()
+    serializer_class = CartSerializer
+    permission_classes = [IsAuthorOrIsAdmin, ]
+
+
+class UpdateCartAPIView(UpdateAPIView):
+    queryset = Cart.objects.all()
+    serializer_class = CartSerializer
+    permission_classes = [IsAuthorOrIsAdmin, ]
+
+
+class DeleteCartAPIView(DestroyAPIView):
+    queryset = Cart.objects.all()
+    serializer_class = CartSerializer
+    permission_classes = [IsAuthorOrIsAdmin, ]
+
+
 class LikeListCreate(APIView):
 
     def get(self, request, pk):  # function to get total number of likes to particular post
         post = Product.objects.filter(pk=pk)  # find which post's likes are to be extracted
         like_count = post.likepost.count()  # counts total user likes ,besides my code is wrong
-        serializer = ProductlikeSerializer(like_count, many=True)
+        serializer = ProductLikeSerializer(like_count, many=True)
         return Response(serializer.data)
 
     def post(self, request, pk):  # function to add likes to post
             # how do I check if user is already liked the post ?
         likeusers = request.user
         likepost = Product.objects.filter(pk=pk)
-        serializer = ProductlikeSerializer(data=request.data)
+        serializer = ProductLikeSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(likeusers, likepost)
             return Response(serializer.data, status=status.HTTP_201_CREATED)

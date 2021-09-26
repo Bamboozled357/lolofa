@@ -1,8 +1,10 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from versatileimagefield.fields import VersatileImageField, PPOIField
 
+from account.models import User
 
-User = get_user_model()
+# User = get_user_model()
 
 STATUS_CHOICES = (
     ('open', 'Открытое'),
@@ -45,8 +47,16 @@ class Product(models.Model):
 
 
 class ProductImage(models.Model):
-    image = models.ImageField(upload_to='products', blank=True, null=True)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
+    name = models.CharField(max_length=255)
+    image = VersatileImageField(
+        'Image',
+        upload_to='images/',
+        ppoi_field='image_ppoi'
+    )
+    image_ppoi = PPOIField()
+
+    def __str__(self):
+        return self.name
 
     class Meta:
         verbose_name = 'Изображение'

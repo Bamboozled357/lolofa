@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.admin import ModelAdmin
-
+from .models import ProductImage
 from main.models import Product, UserProductRelation, Response, Cart
 
 
@@ -23,3 +23,4 @@ class UserProductRelationAdmin(ModelAdmin):
 class CartAdmin(ModelAdmin):
     pass
 
+admin.site.register(ProductImage)

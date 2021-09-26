@@ -9,3 +9,5 @@ django-rest-passwordreset
 django_filters==2.4.0
 celery
 redis
+django-versatileimagefield
+python-magic-bin
