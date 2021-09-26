@@ -33,13 +33,14 @@ class Product(models.Model):
                              related_name='prod', verbose_name='Покупатель')
     created_at = models.DateTimeField('Дата создания', auto_now_add=True)
     updated_at = models.DateTimeField('Дата редактирования', auto_now=True)
+    image = models.ManyToManyField('main.ProductImage', related_name='products')
 
     class Meta:
         verbose_name = 'Товар'
         verbose_name_plural = 'Товары'
 
     def __str__(self):
-        return self.title
+        # return self.title
         return f'Id{self.user}:{self.title}'
 
 
@@ -72,7 +73,7 @@ class Response(models.Model):
 
     def __str__(self):
 
-        return f'{self.product} --> {self.user}'
+        # return f'{self.product} --> {self.user}'
 
         return f'{self.text} --> {self.author}'
 
