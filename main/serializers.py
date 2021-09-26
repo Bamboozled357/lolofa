@@ -1,14 +1,30 @@
 from rest_framework import serializers
-from main.models import Product, Response
+from main.models import Category, Product, ProductImage, Response
 
 
-class ProductListSerializer(serializers.ModelSerializer):
+class ListProductSerializer(serializers.ModelSerializer):  #ok
     class Meta:
         model = Product
         fields = '__all__'
 
 
-class ProductDetailSerializer(serializers.ModelSerializer):
+class ProductListSerializer(serializers.ModelSerializer):  #ok
+    class Meta:
+        model = Product
+        exclude = ('user', )
+
+    def create(self, validated_data):
+        request = self.context.get('request')
+        validated_data['user'] = request.user
+        return super().create(validated_data)
+
+    def update(self, validated_data, instance):
+        request = self.context.get('request')
+        validated_data['user'] = request.user
+        return super().update(validated_data)
+
+
+class DetailProductSerializer(serializers.ModelSerializer):  #ok
     class Meta:
         model = Product
         fields = '__all__'
@@ -19,8 +35,6 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         return rep
 
 
-
-
 class ResponseSerializer(serializers.ModelSerializer):
     response = serializers.PrimaryKeyRelatedField(write_only=True,
                                                     queryset=Response.objects.all())
@@ -28,7 +42,7 @@ class ResponseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Response
-        fields = ('id', 'text', 'user','response')
+        fields = ('id', 'text', 'user', 'response')
 
     def create(self, validated_data):
         request = self.context.get('request')

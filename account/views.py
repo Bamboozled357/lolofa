@@ -1,77 +1,72 @@
-from rest_framework import generics, permissions
-from rest_framework.response import Response
-from knox.models import AuthToken
-from .serializers import UserSerializer, RegisterSerializer
-
-from django.contrib.auth import login
-
-from rest_framework import permissions
-from rest_framework.authtoken.serializers import AuthTokenSerializer
-from knox.views import LoginView as KnoxLoginView
-
-from rest_framework import status
-from rest_framework import generics
-from rest_framework.response import Response
-from django.contrib.auth.models import User
-from .serializers import ChangePasswordSerializer
+from rest_framework.authtoken.models import Token
+from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-# Register API
-class RegisterAPI(generics.GenericAPIView):
-    serializer_class = RegisterSerializer
-
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
-        return Response({
-        "user": UserSerializer(user, context=self.get_serializer_context()).data,
-        "token": AuthToken.objects.create(user)[1]
-        })
+from .serializers import (RegistrationSerializer,
+                          ActivationSerializer, LoginSerializer,
+                          ForgotPasswordSerializer,
+                          ForgotPasswordCompleteSerializer, ChangePasswordSerializer)
 
 
-class LoginAPI(KnoxLoginView):
-    permission_classes = (permissions.AllowAny,)
-
-    def post(self, request, format=None):
-        serializer = AuthTokenSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
-        login(request, user)
-        return super(LoginAPI, self).post(request, format=None)
-
-
-
-class ChangePasswordView(generics.UpdateAPIView):
-    """
-    An endpoint for changing password.
-    """
-    serializer_class = ChangePasswordSerializer
-    model = User
-    permission_classes = (IsAuthenticated,)
-
-    def get_object(self, queryset=None):
-        obj = self.request.user
-        return obj
-
-    def update(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        serializer = self.get_serializer(data=request.data)
-
+class RegistrationView(APIView):
+    def post(self, request):
+        serializer = RegistrationSerializer(data=request.data)
         if serializer.is_valid():
-            # Check old password
-            if not self.object.check_password(serializer.data.get("old_password")):
-                return Response({"old_password": ["Wrong password."]}, status=status.HTTP_400_BAD_REQUEST)
-            # set_password also hashes the password that the user will get
-            self.object.set_password(serializer.data.get("new_password"))
-            self.object.save()
-            response = {
-                'status': 'success',
-                'code': status.HTTP_200_OK,
-                'message': 'Password updated successfully',
-                'data': []
-            }
+            serializer.save()
+            return Response('Ваш аккаунт успешно зарегистрирован, на Вашу почту отправлено письмо '
+                            'для подтверждения', status=201)
+        return Response(serializer.errors, status=400)
 
-            return Response(response)
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class ActivationView(APIView):
+    def post(self, request):
+        serializer = ActivationSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.activate()
+            return Response('Пользователь успешно активирован')
+        return Response(serializer.errors, status=400)
+
+
+class LoginView(ObtainAuthToken):
+    serializer_class = LoginSerializer
+
+
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        Token.objects.filter(user=user).delete()
+        return Response('Вы вышли с сайта')
+
+
+class ChangePasswordView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = ChangePasswordSerializer(data=request.data,
+                                              context={'request': request})
+        if serializer.is_valid():
+            serializer.set_new_password()
+            return Response('Ваш пароль изменён')
+        return Response(serializer.errors, status=400)
+
+
+class ForgotPasswordView(APIView):
+    def post(self, request):
+        serializer = ForgotPasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.send_code()
+            return Response('Вам выслан код для восстановления пароля')
+        return Response(serializer.errors, status=400)
+
+
+class ForgotPasswordCompleteView(APIView):
+    def post(self, request):
+        serializer = ForgotPasswordCompleteSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.set_new_password()
+            return Response('Пароль успешно обновлён')
+        return Response(serializer.errors, status=400)

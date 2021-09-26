@@ -1,10 +1,7 @@
 from django.db import models
-
-from django.db import models
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
-
 
 STATUS_CHOICES = (
     ('open', 'Открытое'),
@@ -13,42 +10,53 @@ STATUS_CHOICES = (
 )
 
 
-class Product(models.Model):
-    """Классы, которые наследуются от models.Model являются моделями, то есть
-    отвечают за связь с БД через ORM, в БД будет создана таблица с указанными
-    полями"""
-    title = models.CharField('Заголовок', max_length=255)
-    # CharField - VARCHAR(), обязательное свойство max_length
-    descriptions = models.TextField('Описание')
+class Category(models.Model):
+    slug = models.SlugField(max_length=100, primary_key=True)
+    name = models.CharField(max_length=100, unique=True)
 
+    class Meta:
+        verbose_name = 'Категория'
+        verbose_name_plural = 'Категории'
+
+    def __str__(self):
+        return self.name
+
+
+class Product(models.Model):
+    title = models.CharField('Название', max_length=200)
+    descriptions = models.TextField('Описание')
+    status = models.CharField('Статус', max_length=10, choices=STATUS_CHOICES)
     price = models.DecimalField('Цена', max_digits=100, decimal_places=2)
-    """choices - жёстко ограниченные варианты выбора, т.е никакие иные значения 
-    не принимаются"""
     user = models.ForeignKey(User,
                              on_delete=models.CASCADE,
                              related_name='prod', verbose_name='Покупатель')
-    """ForeignKey - поле для связи с другой моделью, обязательные свойства: модель,
-    on_delete - определяет, что произойдёт с объявлением, если удалить автора из БД"""
     created_at = models.DateTimeField('Дата создания', auto_now_add=True)
-    """DateTimeField - TIMESTAMP in SQL, auto_now_add - время задаётся при добавлении записи,
-    auto_now - время задаётся при изменении записи"""
     updated_at = models.DateTimeField('Дата редактирования', auto_now=True)
 
     class Meta:
-        verbose_name = 'Продукт'
-        verbose_name_plural = 'Продукты'
+        verbose_name = 'Товар'
+        verbose_name_plural = 'Товары'
 
     def __str__(self):
         return self.title
 
 
+class ProductImage(models.Model):
+    image = models.ImageField(upload_to='products', blank=True, null=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
+
+    class Meta:
+        verbose_name = 'Изображение'
+        verbose_name_plural = 'Изображения'
+
+
 class Response(models.Model):
     product = models.ForeignKey(Product,
                                 on_delete=models.CASCADE,
-                                related_name='отзывы', verbose_name='Продукт')
+                                related_name='comments', verbose_name='Продукт')
     user = models.ForeignKey(User,
                              on_delete=models.CASCADE,
-                             related_name='отзывы', verbose_name='Покупатель')
+                             related_name='comments', verbose_name='Покупатель')
     text = models.TextField('Текст')
     created_at = models.DateTimeField('Дата создания', auto_now_add=True)
 

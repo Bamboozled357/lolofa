@@ -3,3 +3,6 @@ documentation source: https://drf-yasg.readthedocs.io/en/stable/readme.html
 
 2. Django REST Framework | User Register Login Logout API
 documentation source: https://studygyaan.com/django/django-rest-framework-tutorial-register-login-logout
+
+superuser for 8000 port - admin666@gmail.com/qwerty
+sudo fuser -k 8000/tcp - команда для сброса порта, когда выбрасывает в терминале что порт уже используется
