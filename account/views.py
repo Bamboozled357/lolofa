@@ -8,6 +8,9 @@ from .serializers import (RegistrationSerializer,
                           ActivationSerializer, LoginSerializer,
                           ForgotPasswordSerializer,
                           ForgotPasswordCompleteSerializer, ChangePasswordSerializer)
+from rest_framework import permissions
+from rest_framework.authtoken.serializers import AuthTokenSerializer
+from knox.views import LoginView as KnoxLoginView, LoginView
 
 
 class RegistrationView(APIView):
@@ -31,6 +34,10 @@ class ActivationView(APIView):
 
 class LoginView(ObtainAuthToken):
     serializer_class = LoginSerializer
+
+
+class LoginAPI(LoginView):
+    permission_classes = (permissions.AllowAny,)
 
 
 class LogoutView(APIView):
