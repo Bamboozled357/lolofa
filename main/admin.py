@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.admin import ModelAdmin
 
-from main.models import Product, UserProductRelation,Response
+from main.models import Product, UserProductRelation, Response, Cart
 
 
 @admin.register(Product)
@@ -14,4 +14,8 @@ class UserProductRelationAdmin(ModelAdmin):
 
 @admin.register(Response)
 class UserProductRelationAdmin(ModelAdmin):
+    pass
+
+@admin.register(Cart)
+class CartAdmin(ModelAdmin):
     pass

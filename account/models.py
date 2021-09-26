@@ -1,15 +1,7 @@
-import os
-import uuid
-
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.db import models
 
-def image_file_path(instance, filename):
-    """Generate file path for new recipe image"""
-    ext = filename.split('.')[-1]
-    filename = f'{uuid.uuid4()}.{ext}'
 
-    return os.path.join('uploads/', filename)
 
 class UserManager(BaseUserManager):
     def _create(self, email, password, name, **extra_fields):

@@ -1,7 +1,9 @@
 from django.contrib.auth import get_user_model
-from django.core.paginator import Paginator
+
 from rest_framework import serializers
-from main.models import Product, Response, UserProductRelation
+
+
+from main.models import Product, Response, UserProductRelation, Cart, ProductLikes
 
 
 class ProductListSerializer(serializers.ModelSerializer):
@@ -25,14 +27,14 @@ class AuthorSerializers(serializers.ModelSerializer):
 
     class Meta:
         model = get_user_model()
-        fields = ('username','profile_pic')
+        fields = ('username')
 
 class ResponseSerializer(serializers.ModelSerializer):
     response = serializers.PrimaryKeyRelatedField(write_only=True,
                                                     queryset=Response.objects.all())
     user = serializers.PrimaryKeyRelatedField(read_only=True)
     author = AuthorSerializers(read_only=True)
-    photo = serializers.ImageField(max_length=None, allow_empty_file=False)
+    # photo = serializers.ImageField(max_length=None, allow_empty_file=False)
     product_response = serializers.SerializerMethodField('paginated_product_response')
     liked_by_req_user = serializers.SerializerMethodField()
     class Meta:
@@ -47,13 +49,6 @@ class ResponseSerializer(serializers.ModelSerializer):
     def get_number_of_responses(self,obj):
         return Response.objects.filter(product=obj).count()
 
-    def paginated_product_responses(self,obj):
-        page_size = 2
-        paginator = Paginator(obj.product_responses.all(),page_size )
-        page = self.context['request'].query_params.get('page') or 1
-        product_response = paginator.page(page)
-        serializer = ResponseSerializer(product_response,many=True)
-
     def get_liked_by_req_user(self,obj):
         user = self.context['request'].user
         return  user in obj.likes.all()
@@ -61,12 +56,31 @@ class ResponseSerializer(serializers.ModelSerializer):
 class UserProductRelationSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProductRelation
-        fields = ('product', 'like', 'in_productmarks', 'rate','user')
+        fields = ('product', 'like', 'in_productmarks', 'rate')
 
-class NoteSerializer(serializers.ModelSerializer):
+
+
+class CartSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Product
+        model = Cart
         fields = '__all__'
+
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['user'] = instance.user.email
+        return representation
+
+class ProductlikeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductLikes
+        fields = '__all__'
+
+
+
+
+
+
 
 
 

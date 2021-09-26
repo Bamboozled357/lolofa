@@ -2,7 +2,7 @@ from itertools import product
 
 import django_filters
 from django.shortcuts import render
-from rest_framework import mixins, generics, filters, permissions
+from rest_framework import mixins, generics, filters, permissions, status
 
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.generics import ListAPIView, RetrieveAPIView, get_object_or_404
@@ -11,13 +11,13 @@ from rest_framework.generics import DestroyAPIView
 from rest_framework.generics import UpdateAPIView
 from rest_framework.mixins import UpdateModelMixin
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from rest_framework.filters import SearchFilter, OrderingFilter
 from main.models import Product, Response, UserProductRelation
-from main.pagination import CustomPagination, CustomLikersPagination
+from main.pagination import CustomPagination
 from main.permissions import IsAuthor, IsOwnerOrStaffOrReadOnly
-from main.serializers import ProductDetailSerializer, ProductListSerializer, ResponseSerializer, NoteSerializer, \
-    AuthorSerializers
+from main.serializers import ProductDetailSerializer, ProductListSerializer, ResponseSerializer, CartSerializer, ProductlikeSerializer
 
 
 class ProductListView(generics.ListAPIView):
@@ -38,11 +38,7 @@ class ProductListView(generics.ListAPIView):
     filter_backends = [filters.OrderingFilter]
     ordering_fields = '__all__'
 
-class ProductListView(generics.ListAPIView):
-    queryset = Product.objects.all()
-    serializer_class = ProductDetailSerializer
-    filter_backends = [filters.OrderingFilter]
-    ordering_fields = '__all__'
+
 
 class ProductDetailView(RetrieveAPIView):
     queryset = Product.objects.all()
@@ -122,26 +118,14 @@ class ProductViewSet(ModelViewSet):
 
 #PAGINATION
 
-from rest_framework.viewsets import ModelViewSet
-
-
-class NoteViewSet(ModelViewSet):
-    serializer_class = NoteSerializer
-    pagination_class = CustomPagination
-
-    def get_object(self):
-        return get_object_or_404(Product, id=self.request.query_params.get("id"))
-
-    def get_queryset(self):
-        return Product.objects.filter(is_active=True).order_by('-last_udpated_on')
-
-    def perform_destroy(self, instance):
-        instance.is_active = False
-        instance.save()
 
 
 
-class LikeView(ListAPIView):
+
+
+
+
+class LikeView(generics.ListAPIView):
     """Toggle like"""
 
     def get(self, request, format=None, product_id=None):
@@ -159,14 +143,27 @@ class LikeView(ListAPIView):
         }
         return Response(data)
 
-class GetLikersView(generics.ListAPIView):
-    serializer_class = AuthorSerializers
-    pagination_class = CustomLikersPagination
-    permission_classes = (permissions.AllowAny,)
 
-    def get_queryset(self):
-        product_id = self.kwargs['post_id']
-        queryset = Product.objects.get(
-            pk=product_id).likes.all()
-        return queryset
+
+class CartAPIView(generics.ListAPIView):
+    queryset = Product.objects.all()
+    serializer_class = CartSerializer
+
+class LikeListCreate(APIView):
+
+    def get(self, request, pk):  # function to get total number of likes to particular post
+        post = Product.objects.filter(pk=pk)  # find which post's likes are to be extracted
+        like_count = post.likepost.count()  # counts total user likes ,besides my code is wrong
+        serializer = ProductlikeSerializer(like_count, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, pk):  # function to add likes to post
+            # how do I check if user is already liked the post ?
+        likeusers = request.user
+        likepost = Product.objects.filter(pk=pk)
+        serializer = ProductlikeSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(likeusers, likepost)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

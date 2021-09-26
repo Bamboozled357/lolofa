@@ -7,7 +7,8 @@ from django.contrib.auth import login
 
 from rest_framework import permissions
 from rest_framework.authtoken.serializers import AuthTokenSerializer
-from knox.views import LoginView as KnoxLoginView
+from knox.views import LoginView as KnoxLoginView, LoginView
+
 
 # Register API
 class RegisterAPI(generics.GenericAPIView):
@@ -24,7 +25,7 @@ class RegisterAPI(generics.GenericAPIView):
 
 
 
-class LoginAPI(KnoxLoginView):
+class LoginAPI(LoginView):
     permission_classes = (permissions.AllowAny,)
 
     def post(self, request, format=None):
